@@ -14,6 +14,10 @@ A simple text editor that allows users to add and format text. This project feat
 - HTML
 - CSS
 - JavaScript
+- 
+   ## Live Demo
+
+You can view a live demo of the project [here](https://ui-celebrare.vercel.app/).
 
 ## Installation
 
