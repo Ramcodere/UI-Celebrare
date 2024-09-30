@@ -1,0 +1,146 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Celebrare</title>
+    <link rel="stylesheet" href="style.css"> 
+</head>
+<body>
+
+    <div class="controls">
+        <button id="undo-btn">Undo <span class="icon">↩️</span></button>
+        <button id="redo-btn">Redo <span class="icon">↪️</span></button>
+    </div>
+
+    <div id="editor-container"></div>
+
+    <div class="font-controls">
+        <label for="font-size">Font Size:</label>
+        <input type="number" id="font-size" value="16">
+
+        <button id="bold-btn"><b>Bold</b></button>
+        <button id="italic-btn"><i>Italic</i></button>
+        <button id="underline-btn"><u>Underline</u></button>
+
+        <button id="apply-btn">Apply</button>
+    </div>
+
+    <div class="controls">
+        <input type="text" id="text-input" placeholder="Enter text here">
+        <button id="add-text-btn" class="small-btn">Add Text</button>
+    </div>
+
+    <script>
+        let editor = document.getElementById('editor-container');
+        let textInput = document.getElementById('text-input');
+        let fontSizeInput = document.getElementById('font-size');
+        let history = [];
+        let historyIndex = -1;
+        let selectedText = null;
+
+        document.getElementById('add-text-btn').addEventListener('click', function() {
+            let text = textInput.value;
+            if (text) {
+                let newText = document.createElement('div');
+                newText.classList.add('text-element');
+                newText.style.fontSize = fontSizeInput.value + 'px';
+                newText.textContent = text;
+                editor.appendChild(newText);
+
+                makeDraggable(newText);
+                selectedText = newText;
+
+                saveHistory();
+            }
+        });
+
+        document.getElementById('apply-btn').addEventListener('click', function() {
+            if (selectedText) {
+                selectedText.style.fontSize = fontSizeInput.value + 'px';
+                saveHistory();
+            }
+        });
+
+        document.getElementById('bold-btn').addEventListener('click', function() {
+            if (selectedText) {
+                let weight = selectedText.style.fontWeight === 'bold' ? 'normal' : 'bold';
+                selectedText.style.fontWeight = weight;
+                saveHistory();
+            }
+        });
+
+        document.getElementById('italic-btn').addEventListener('click', function() {
+            if (selectedText) {
+                let style = selectedText.style.fontStyle === 'italic' ? 'normal' : 'italic';
+                selectedText.style.fontStyle = style;
+                saveHistory();
+            }
+        });
+
+        document.getElementById('underline-btn').addEventListener('click', function() {
+            if (selectedText) {
+                let decoration = selectedText.style.textDecoration === 'underline' ? 'none' : 'underline';
+                selectedText.style.textDecoration = decoration;
+                saveHistory();
+            }
+        });
+
+        document.getElementById('undo-btn').addEventListener('click', function() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                editor.innerHTML = history[historyIndex];
+                reassignDraggable();
+            }
+        });
+
+        document.getElementById('redo-btn').addEventListener('click', function() {
+            if (historyIndex < history.length - 1) {
+                historyIndex++;
+                editor.innerHTML = history[historyIndex];
+                reassignDraggable();
+            }
+        });
+
+        function saveHistory() {
+            history.push(editor.innerHTML);
+            historyIndex = history.length - 1;
+        }
+
+        function makeDraggable(element) {
+            let dragging = false;
+
+            element.addEventListener('mousedown', function(e) {
+                dragging = true;
+                let offsetX = e.clientX - element.offsetLeft;
+                let offsetY = e.clientY - element.offsetTop;
+
+                document.onmousemove = function(e) {
+                    if (dragging) {
+                        element.style.left = e.clientX - offsetX + 'px';
+                        element.style.top = e.clientY - offsetY + 'px';
+                    }
+                };
+
+                document.onmouseup = function() {
+                    dragging = false;
+                    document.onmousemove = null;
+                };
+            });
+
+            element.addEventListener('click', function() {
+                selectedText = element;
+            });
+        }
+
+        function reassignDraggable() {
+            document.querySelectorAll('.text-element').forEach(makeDraggable);
+        }
+
+        saveHistory();
+    </script>
+
+</body>
+</html>
